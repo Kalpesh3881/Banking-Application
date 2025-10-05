@@ -1,5 +1,6 @@
 package com.example.bankpay.api;
 
+import com.example.bankpay.domain.dto.DomesticTransferRequest;
 import com.example.bankpay.domain.dto.InternalTransferRequest;
 import com.example.bankpay.domain.dto.PaymentResponse;
 import com.example.bankpay.service.PaymentService;
@@ -25,5 +26,12 @@ public class PaymentsController {
             @RequestHeader("Idempotency-Key") String idempotencyKey,
             @Valid @RequestBody InternalTransferRequest request) {
         return ResponseEntity.ok(payments.internalTransfer(request, idempotencyKey));
+    }
+
+    @PostMapping("/transfers/domestic")
+    public ResponseEntity<PaymentResponse> domesticTransfer(
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
+            @Valid @RequestBody DomesticTransferRequest request) {
+        return ResponseEntity.ok(payments.domesticTransfer(request, idempotencyKey));
     }
 }

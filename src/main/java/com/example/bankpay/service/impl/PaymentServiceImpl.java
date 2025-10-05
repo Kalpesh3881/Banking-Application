@@ -1,5 +1,6 @@
 package com.example.bankpay.service.impl;
 
+import com.example.bankpay.domain.dto.DomesticTransferRequest;
 import com.example.bankpay.domain.dto.InternalTransferRequest;
 import com.example.bankpay.domain.dto.PaymentResponse;
 import com.example.bankpay.domain.enums.AccountStatus;
@@ -102,6 +103,72 @@ public class PaymentServiceImpl implements PaymentService {
                 req.reference(), "ACC:" + src.id(), now, now, corr);
         txns.createAll(List.of(tOut, tIn));
 
+        Payment posted = payments.update(payment.posted(now));
+        return new PaymentResponse(posted.id(), posted.status(), posted.correlationId(), posted.createdAt(), posted.postedAt());
+    }
+
+    @Override
+    @Transactional
+    public PaymentResponse domesticTransfer(DomesticTransferRequest req, String idempotencyKey) {
+        String idem = Objects.requireNonNull(idempotencyKey, "Idempotency-Key required").trim();
+        if (idem.isBlank()) throw new IllegalArgumentException("Idempotency-Key cannot be blank");
+
+        var existing = payments.findByIdempotencyKey(idem);
+        if (existing.isPresent()) {
+            var p = existing.get();
+            return new PaymentResponse(p.id(), p.status(), p.correlationId(), p.createdAt(), p.postedAt());
+        }
+
+        Instant now = clock.now();
+        String corr = idem;
+
+        // Load & validate source account
+        Account src = accounts.findById(req.sourceAccountId())
+                .orElseThrow(() -> new DomainException(ACCOUNT_NOT_FOUND, "Source account not found",
+                        java.util.Map.of("accountId", req.sourceAccountId())));
+
+        if (!src.currency().equalsIgnoreCase(req.currency())) {
+            throw new DomainException(CURRENCY_MISMATCH, "Currency mismatch between account and request",
+                    java.util.Map.of("accountCurrency", src.currency(), "requestCurrency", req.currency()));
+        }
+        if (src.status() != AccountStatus.ACTIVE) {
+            throw new DomainException(ACCOUNT_STATE_INVALID, "Source account not ACTIVE",
+                    java.util.Map.of("status", src.status().name()));
+        }
+
+        // Normalize IBAN
+        String iban = req.beneficiaryIban().replace(" ", "").toUpperCase();
+
+        // Create INITIATED payment
+        Payment payment = payments.create(Payment.init(
+                src.id(), null, src.currency(), req.amountMinor(), req.reference(), idem, corr, now
+        ).withId(null) /* id will be assigned in gateway */);
+
+        // Apply debit
+        Money amount = Money.of(src.currency(), req.amountMinor());
+        Account debited;
+        try {
+            debited = src.debit(amount);
+        } catch (IllegalStateException ex) {
+            payments.update(payment.failed("INSUFFICIENT_FUNDS"));
+            throw new DomainException(INSUFFICIENT_FUNDS, "Insufficient funds / overdraft exceeded",
+                    java.util.Map.of("accountId", src.id()));
+        }
+
+        // Persist debit + transaction
+        accounts.update(debited);
+
+        Transaction tOut = Transaction.posted(
+                src.id(),
+                TransactionType.DEBIT,
+                amount,
+                req.reference(),
+                "IBAN:" + iban + (req.beneficiaryName() == null ? "" : ("|" + req.beneficiaryName())),
+                now, now, corr
+        );
+        txns.create(tOut);
+
+        // Mark payment as POSTED in our books (settlement with scheme is out of scope for now)
         Payment posted = payments.update(payment.posted(now));
         return new PaymentResponse(posted.id(), posted.status(), posted.correlationId(), posted.createdAt(), posted.postedAt());
     }
