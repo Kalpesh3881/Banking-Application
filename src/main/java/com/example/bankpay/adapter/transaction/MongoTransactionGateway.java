@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class MongoTransactionGateway implements TransactionGateway {
@@ -82,12 +83,19 @@ public class MongoTransactionGateway implements TransactionGateway {
         return docs.stream().map(this::toDomain).toList();
     }
 
+    @Override
+    public Optional<Transaction> findByAccountAndCorrelation(Long accountId, String correlationId) {
+        return repo.findFirstByAccountIdAndCorrelationId(accountId, correlationId)
+                .map(this::toDomain);
+    }
+
     private Transaction toDomain(TransactionDoc d) {
         return new Transaction(
                 d.id, d.accountId, d.type, d.currency, d.amountMinor,
                 d.reference, d.counterparty, d.status, d.valueDate, d.createdAt, d.correlationId
         );
     }
+
     private TransactionDoc toDoc(Transaction t) {
         var d = new TransactionDoc();
         d.id = t.id();
