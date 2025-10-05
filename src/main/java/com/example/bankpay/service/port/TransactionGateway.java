@@ -11,4 +11,7 @@ public interface TransactionGateway {
 
     /** Net balance change before 'beforeInstant' (credits - debits) for POSTED txns. */
     long netChangeBefore(Long accountId, Instant beforeInstant);
+
+    Transaction create(Transaction txn);
+    List<Transaction> createAll(List<Transaction> txns);
 }

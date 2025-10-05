@@ -25,6 +25,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/accounts/**").permitAll()
                         .requestMatchers("/admin/**").permitAll()
+                        .requestMatchers("/payments/**").permitAll()
+
 
                         // (Optional) allow docs/health in dev
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
