@@ -22,8 +22,10 @@ public class WebSecurityConfig {
                 // Who can access what
                 .authorizeHttpRequests(auth -> auth
                         // Public auth/onboarding endpoints
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/otp/**").permitAll()
+                        .requestMatchers("/auth/otp/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/accounts/**").permitAll()
+                        .requestMatchers("/admin/**").permitAll()
 
                         // (Optional) allow docs/health in dev
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()

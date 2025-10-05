@@ -6,5 +6,7 @@ public enum ErrorCode {
     USER_NOT_FOUND,
     OTP_INVALID,
     OTP_EXPIRED,
-    RATE_LIMITED
+    RATE_LIMITED,
+    ACCOUNT_NOT_FOUND,
+    ACCOUNT_STATE_INVALID
 }
