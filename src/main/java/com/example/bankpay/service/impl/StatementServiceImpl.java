@@ -31,7 +31,7 @@ public class StatementServiceImpl implements StatementService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
     public AccountStatementResponse generate(Long accountId, Instant fromInclusive, Instant toInclusive) {
         if (fromInclusive == null || toInclusive == null || toInclusive.isBefore(fromInclusive)) {
             throw new DomainException(STATEMENT_RANGE_INVALID, "Invalid statement range",

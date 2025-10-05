@@ -40,7 +40,7 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public OtpIssueResponse issueOtp(RequestOtpRequest request) {
         Long userId = Objects.requireNonNull(request.userId(), "userId required");
         OtpPurpose purpose = request.purpose() == null ? OtpPurpose.REGISTER : request.purpose();
@@ -68,7 +68,7 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public VerifyOtpResponse verifyOtp(VerifyOtpRequest request) {
         Long userId = Objects.requireNonNull(request.userId(), "userId required");
         String code = Objects.requireNonNull(request.code(), "code required");

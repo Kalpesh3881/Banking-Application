@@ -41,7 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public PaymentResponse internalTransfer(InternalTransferRequest req, String idempotencyKey) {
         String idem = Objects.requireNonNull(idempotencyKey, "Idempotency-Key required").trim();
         if (idem.isBlank()) throw new IllegalArgumentException("Idempotency-Key cannot be blank");
@@ -108,7 +108,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public PaymentResponse domesticTransfer(DomesticTransferRequest req, String idempotencyKey) {
         String idem = Objects.requireNonNull(idempotencyKey, "Idempotency-Key required").trim();
         if (idem.isBlank()) throw new IllegalArgumentException("Idempotency-Key cannot be blank");

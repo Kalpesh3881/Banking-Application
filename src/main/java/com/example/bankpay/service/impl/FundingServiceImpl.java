@@ -34,7 +34,7 @@ public class FundingServiceImpl implements FundingService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public DepositResponse deposit(Long accountId, DepositRequest req, String idempotencyKey) {
         String idem = Objects.requireNonNull(idempotencyKey, "Idempotency-Key required").trim();
         if (idem.isBlank()) throw new IllegalArgumentException("Idempotency-Key cannot be blank");

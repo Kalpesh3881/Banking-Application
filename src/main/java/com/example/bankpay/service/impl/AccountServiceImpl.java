@@ -33,7 +33,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public AccountResponse open(OpenAccountRequest req) {
         Instant now = clock.now();
         Account opened = Account.open(
@@ -56,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
     public AccountResponse getById(Long accountId) {
         Account acc = accounts.findById(accountId)
                 .orElseThrow(() -> new DomainException(
@@ -68,14 +68,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+//    @Transactional(readOnly = true)
     public AccountsListResponse listByCustomer(Long customerId) {
         List<Account> list = accounts.findByCustomerId(customerId);
         return new AccountsListResponse(list.stream().map(this::toDto).toList());
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public AccountResponse freeze(Long accountId) {
         Account acc = mustGet(accountId);
         if (acc.status() == AccountStatus.CLOSED) {
@@ -90,7 +90,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public AccountResponse unfreeze(Long accountId) {
         Account acc = mustGet(accountId);
         if (acc.status() == AccountStatus.CLOSED) {
@@ -105,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public AccountResponse close(Long accountId) {
         Account acc = mustGet(accountId);
         if (acc.status() == AccountStatus.CLOSED) return toDto(acc);
